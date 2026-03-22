@@ -296,7 +296,7 @@ export default function ExercisePage() {
               style={{ transform: "scaleX(-1)" }}
               muted playsInline
             />
-            <PoseCanvas />
+            <PoseCanvas videoRef={videoRef} />
 
             {/* Valgus border flash */}
             <AnimatePresence>
