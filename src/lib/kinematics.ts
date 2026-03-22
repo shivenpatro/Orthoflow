@@ -39,7 +39,7 @@ export function calculateAngle(
   a: Landmark,
   b: Landmark,
   c: Landmark,
-  visThreshold = 0.4
+  visThreshold = 0.15
 ): number {
   if (
     (a.visibility ?? 1) < visThreshold ||
@@ -117,7 +117,7 @@ export function getKneeFlexionAngle(landmarks: Landmark[]): number {
   const right = calculateAngle(landmarks[LM.RIGHT_HIP], landmarks[LM.RIGHT_KNEE], landmarks[LM.RIGHT_ANKLE]);
   const lv = landmarks[LM.LEFT_KNEE].visibility ?? 0;
   const rv = landmarks[LM.RIGHT_KNEE].visibility ?? 0;
-  if (left > 0 && right > 0 && lv > 0.4 && rv > 0.4) return (left + right) / 2;
+  if (left > 0 && right > 0 && lv > 0.15 && rv > 0.15) return (left + right) / 2;
   if (left > 0 && lv > rv) return left;
   if (right > 0) return right;
   return 180;
@@ -126,7 +126,7 @@ export function getKneeFlexionAngle(landmarks: Landmark[]): number {
 function detectValgus(landmarks: Landmark[], angle: number): boolean {
   if (landmarks.length < 29 || angle > 155) return false;
   const check = (hip: Landmark, knee: Landmark, ankle: Landmark, isLeft: boolean): boolean => {
-    if ((hip.visibility ?? 0) < 0.4 || (knee.visibility ?? 0) < 0.4 || (ankle.visibility ?? 0) < 0.4) return false;
+    if ((hip.visibility ?? 0) < 0.15 || (knee.visibility ?? 0) < 0.15 || (ankle.visibility ?? 0) < 0.15) return false;
     const midX = (hip.x + ankle.x) / 2;
     const deviation = isLeft ? knee.x - midX : midX - knee.x;
     return deviation > VALGUS_THRESHOLD;
@@ -143,7 +143,7 @@ function detectForwardLean(landmarks: Landmark[]): boolean {
   const rHip = landmarks[LM.RIGHT_HIP];
   const lSho = landmarks[LM.LEFT_SHOULDER];
   const rSho = landmarks[LM.RIGHT_SHOULDER];
-  if ((lHip.visibility ?? 0) < 0.4 || (rSho.visibility ?? 0) < 0.4) return false;
+  if ((lHip.visibility ?? 0) < 0.15 || (rSho.visibility ?? 0) < 0.15) return false;
   const hipMidX = (lHip.x + rHip.x) / 2;
   const shoMidX = (lSho.x + rSho.x) / 2;
   // In mirrored camera view: if shoulder x > hip x significantly, torso leans forward
@@ -189,7 +189,7 @@ export function getShoulderPressAngle(landmarks: Landmark[]): number {
   const right = calculateAngle(landmarks[LM.RIGHT_SHOULDER], landmarks[LM.RIGHT_ELBOW], landmarks[LM.RIGHT_WRIST]);
   const lv = landmarks[LM.LEFT_ELBOW].visibility ?? 0;
   const rv = landmarks[LM.RIGHT_ELBOW].visibility ?? 0;
-  if (left > 0 && right > 0 && lv > 0.4 && rv > 0.4) return (left + right) / 2;
+  if (left > 0 && right > 0 && lv > 0.15 && rv > 0.15) return (left + right) / 2;
   if (left > 0 && lv > rv) return left;
   if (right > 0) return right;
   return 90;
@@ -203,7 +203,7 @@ export function analyzeShoulderPress(landmarks: Landmark[]): FormErrors {
   const rElbow = landmarks[LM.RIGHT_ELBOW];
   const lSho = landmarks[LM.LEFT_SHOULDER];
   const rSho = landmarks[LM.RIGHT_SHOULDER];
-  if ((lElbow.visibility ?? 0) > 0.4 && (rElbow.visibility ?? 0) > 0.4) {
+  if ((lElbow.visibility ?? 0) > 0.15 && (rElbow.visibility ?? 0) > 0.15) {
     // In normalized coords, y increases downward. Elbow should be near shoulder y or above
     const lFlare = Math.abs(lElbow.x - lSho.x) > 0.20; // too far sideways
     const rFlare = Math.abs(rElbow.x - rSho.x) > 0.20;
@@ -230,7 +230,7 @@ export function getLateralRaiseAngle(landmarks: Landmark[]): number {
   const rAngle = calculateAngle(landmarks[LM.RIGHT_HIP], landmarks[LM.RIGHT_SHOULDER], landmarks[LM.RIGHT_ELBOW]);
   const lv = landmarks[LM.LEFT_ELBOW].visibility ?? 0;
   const rv = landmarks[LM.RIGHT_ELBOW].visibility ?? 0;
-  if (lAngle > 0 && rAngle > 0 && lv > 0.4 && rv > 0.4) return (lAngle + rAngle) / 2;
+  if (lAngle > 0 && rAngle > 0 && lv > 0.15 && rv > 0.15) return (lAngle + rAngle) / 2;
   if (lAngle > 0 && lv > rv) return lAngle;
   if (rAngle > 0) return rAngle;
   return 0;
@@ -243,11 +243,11 @@ export function analyzeLateralRaise(landmarks: Landmark[]): FormErrors {
   const rSho = landmarks[LM.RIGHT_SHOULDER];
   const lElbow = landmarks[LM.LEFT_ELBOW];
   const rElbow = landmarks[LM.RIGHT_ELBOW];
-  if ((lSho.visibility ?? 0) > 0.4 && (rSho.visibility ?? 0) > 0.4) {
+  if ((lSho.visibility ?? 0) > 0.15 && (rSho.visibility ?? 0) > 0.15) {
     // Shoulders should stay level (same y)
     errors.unevenShoulders = Math.abs(lSho.y - rSho.y) > 0.06;
     // Elbows should be roughly at shoulder height when raised
-    if ((lElbow.visibility ?? 0) > 0.4 && (rElbow.visibility ?? 0) > 0.4) {
+    if ((lElbow.visibility ?? 0) > 0.15 && (rElbow.visibility ?? 0) > 0.15) {
       errors.asymmetry = Math.abs(lElbow.y - rElbow.y) > 0.08;
     }
   }
@@ -262,7 +262,7 @@ export function getNeckTiltAngle(landmarks: Landmark[]): number {
   const nose = landmarks[LM.NOSE];
   const lSho = landmarks[LM.LEFT_SHOULDER];
   const rSho = landmarks[LM.RIGHT_SHOULDER];
-  if ((nose.visibility ?? 0) < 0.4) return 0;
+  if ((nose.visibility ?? 0) < 0.15) return 0;
   const midShoX = (lSho.x + rSho.x) / 2;
   const midShoY = (lSho.y + rSho.y) / 2;
   // Angle of nose relative to shoulder midpoint
@@ -276,7 +276,7 @@ export function analyzeNeckTilt(landmarks: Landmark[]): FormErrors {
   if (landmarks.length < 12) { errors.positionLost = true; return errors; }
   const lSho = landmarks[LM.LEFT_SHOULDER];
   const rSho = landmarks[LM.RIGHT_SHOULDER];
-  if ((lSho.visibility ?? 0) > 0.4 && (rSho.visibility ?? 0) > 0.4) {
+  if ((lSho.visibility ?? 0) > 0.15 && (rSho.visibility ?? 0) > 0.15) {
     // Shoulders should NOT rise (shrug) during neck tilt
     const shoLevelDiff = Math.abs(lSho.y - rSho.y);
     errors.unevenShoulders = shoLevelDiff > 0.07;
@@ -300,7 +300,7 @@ export function getHandOpenness(landmarks: Landmark[]): number {
   const rPinky = landmarks[LM.RIGHT_PINKY];
 
   const calcSpread = (wrist: Landmark, index: Landmark, pinky: Landmark): number => {
-    if ((wrist.visibility ?? 0) < 0.3) return -1;
+    if ((wrist.visibility ?? 0) < 0.1) return -1;
     const dxIndex = index.x - wrist.x;
     const dyIndex = index.y - wrist.y;
     const dxPinky = pinky.x - wrist.x;

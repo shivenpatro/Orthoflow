@@ -21,31 +21,42 @@ interface Props {
 
 // ── Skeleton connections ──────────────────────────────────────────────────────
 const POSE_CONNECTIONS: [number, number][] = [
+  // Face
+  [LM.NOSE, LM.LEFT_EYE], [LM.NOSE, LM.RIGHT_EYE],
+  [LM.LEFT_EYE, LM.LEFT_EAR], [LM.RIGHT_EYE, LM.RIGHT_EAR],
+  [LM.NOSE, LM.LEFT_EAR], [LM.NOSE, LM.RIGHT_EAR],
+  
   // Torso
   [LM.LEFT_SHOULDER, LM.RIGHT_SHOULDER],
   [LM.LEFT_SHOULDER, LM.LEFT_HIP],
   [LM.RIGHT_SHOULDER, LM.RIGHT_HIP],
   [LM.LEFT_HIP, LM.RIGHT_HIP],
-  // Left arm
+  // Left arm & Hand
   [LM.LEFT_SHOULDER, LM.LEFT_ELBOW],
   [LM.LEFT_ELBOW, LM.LEFT_WRIST],
-  // Right arm
+  [LM.LEFT_WRIST, LM.LEFT_THUMB],
+  [LM.LEFT_WRIST, LM.LEFT_INDEX],
+  [LM.LEFT_WRIST, LM.LEFT_PINKY],
+  [LM.LEFT_INDEX, LM.LEFT_PINKY],
+  // Right arm & Hand
   [LM.RIGHT_SHOULDER, LM.RIGHT_ELBOW],
   [LM.RIGHT_ELBOW, LM.RIGHT_WRIST],
+  [LM.RIGHT_WRIST, LM.RIGHT_THUMB],
+  [LM.RIGHT_WRIST, LM.RIGHT_INDEX],
+  [LM.RIGHT_WRIST, LM.RIGHT_PINKY],
+  [LM.RIGHT_INDEX, LM.RIGHT_PINKY],
   // Left leg
   [LM.LEFT_HIP, LM.LEFT_KNEE],
   [LM.LEFT_KNEE, LM.LEFT_ANKLE],
   // Right leg
   [LM.RIGHT_HIP, LM.RIGHT_KNEE],
   [LM.RIGHT_KNEE, LM.RIGHT_ANKLE],
-  // Face
-  [LM.LEFT_EAR, LM.RIGHT_EAR],
 ];
 
 // Joints highlighted red on valgus
 const VALGUS_JOINTS = new Set<number>([LM.LEFT_KNEE, LM.RIGHT_KNEE]);
 const ELBOW_JOINTS  = new Set<number>([LM.LEFT_ELBOW, LM.RIGHT_ELBOW]);
-const WRIST_JOINTS  = new Set<number>([LM.LEFT_WRIST, LM.RIGHT_WRIST, LM.LEFT_PINKY, LM.RIGHT_PINKY, LM.LEFT_INDEX, LM.RIGHT_INDEX]);
+const WRIST_JOINTS  = new Set<number>([LM.LEFT_WRIST, LM.RIGHT_WRIST, LM.LEFT_PINKY, LM.RIGHT_PINKY, LM.LEFT_INDEX, LM.RIGHT_INDEX, LM.LEFT_THUMB, LM.RIGHT_THUMB]);
 
 export default function PoseCanvas({ width, height }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -75,7 +86,7 @@ export default function PoseCanvas({ width, height }: Props) {
         const a = landmarks[i];
         const b = landmarks[j];
         if (!a || !b) continue;
-        if ((a.visibility ?? 0) < 0.3 || (b.visibility ?? 0) < 0.3) continue;
+        if ((a.visibility ?? 0) < 0.15 || (b.visibility ?? 0) < 0.15) continue;
 
         let strokeColor = "rgba(99,102,241,0.8)"; // indigo default
 
@@ -95,7 +106,7 @@ export default function PoseCanvas({ width, height }: Props) {
       // ── Draw joint circles ──────────────────────────────────────────────────
       for (let i = 0; i < landmarks.length; i++) {
         const lm = landmarks[i];
-        if (!lm || (lm.visibility ?? 0) < 0.3) continue;
+        if (!lm || (lm.visibility ?? 0) < 0.15) continue;
 
         let fillColor = "rgba(139,92,246,0.9)"; // violet default
         let radius = 4;
