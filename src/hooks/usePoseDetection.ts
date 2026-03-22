@@ -234,7 +234,7 @@ export function usePoseDetection(
       lastFrameRef.current = timestamp;
       const video = videoRef.current;
       if (video.readyState < video.HAVE_ENOUGH_DATA) return;
-      createImageBitmap(video, { resizeWidth: 640, resizeHeight: 480, resizeQuality: "pixelated" })
+      createImageBitmap(video)
         .then((bitmap) => {
           const msg: WorkerFrameMessage = { type: "FRAME", bitmap, timestamp };
           workerRef.current?.postMessage(msg, [bitmap]);
